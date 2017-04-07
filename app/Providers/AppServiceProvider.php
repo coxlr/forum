@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Channel;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
@@ -16,6 +17,10 @@ class AppServiceProvider extends ServiceProvider
     {
         //Deal with the issue of migration string length on older version of mysql - LC 040617
         Schema::defaultStringLength(191);
+
+        \View::composer('*', function($view) {
+            $view->with('channels', Channel::all());
+        });
     }
 
     /**
