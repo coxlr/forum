@@ -13,6 +13,15 @@ class Thread extends Model
      */
     protected $guarded = [];
 
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::addGlobalScope('replyCount', function($builder){
+            $builder->withCount('replies');
+        });
+    }
     /**
      * Get a string path for the thread.
      *
@@ -55,5 +64,10 @@ class Thread extends Model
     public function addReply($reply)
     {
         $this->replies()->create($reply);
+    }
+
+    public function scopeFilter($query, $filters)
+    {
+        return $filters->apply($query);
     }
 }

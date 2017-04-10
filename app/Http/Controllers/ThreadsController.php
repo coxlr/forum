@@ -2,39 +2,32 @@
 
 namespace App\Http\Controllers;
 
+use App\Filters\ThreadFilters;
 use App\Thread;
 use App\Channel;
-use App\User;
 use Illuminate\Http\Request;
 
 class ThreadsController extends Controller
 {
     public function __construct()
     {
-        $this->middleware('auth')->except(['index','show']);
+        $this->middleware('auth')->except(['index', 'show']);
     }
 
     /**
      * Display a listing of the resource.
      *
      * @param Channel $channel
+     * @param ThreadFilters $filters
      * @return \Illuminate\Http\Response
      */
-    public function index(Channel $channel)
+    public function index(Channel $channel, ThreadFilters $filters)
     {
-        if($channel->exists){
-            $threads = $channel->threads()->latest();
-        }else {
-            $threads = Thread::latest();
+        $threads = $this->getThreads($channel, $filters);
+
+        if(request()->wantsJson()){
+            return $threads;
         }
-
-        if($username = request('by')){
-            $user = User::where('name', $username)->firstOrFail();
-
-            $threads->where('user_id', $user->id);
-        }
-
-        $threads = $threads->get();
 
         return view('threads.index', compact('threads'));
     }
@@ -52,7 +45,7 @@ class ThreadsController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
@@ -77,18 +70,21 @@ class ThreadsController extends Controller
      * Display the specified resource.
      *
      * @param  $channelId
-     * @param  \App\Thread  $thread
+     * @param  \App\Thread $thread
      * @return \Illuminate\Http\Response
      */
     public function show($channelId, Thread $thread)
     {
-        return view('threads.show', compact('thread'));
+        return view('threads.show', [
+            'thread' => $thread,
+            'replies' =>$thread->replies()->paginate(25),
+        ]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  \App\Thread  $thread
+     * @param  \App\Thread $thread
      * @return \Illuminate\Http\Response
      */
     public function edit(Thread $thread)
@@ -99,8 +95,8 @@ class ThreadsController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Thread  $thread
+     * @param  \Illuminate\Http\Request $request
+     * @param  \App\Thread $thread
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Thread $thread)
@@ -111,11 +107,28 @@ class ThreadsController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Thread  $thread
+     * @param  \App\Thread $thread
      * @return \Illuminate\Http\Response
      */
     public function destroy(Thread $thread)
     {
         //
+    }
+
+    /**
+     * @param Channel $channel
+     * @param ThreadFilters $filters
+     * @return mixed
+     */
+    protected function getThreads(Channel $channel, ThreadFilters $filters)
+    {
+        $threads = Thread::latest()->filter($filters);
+
+        if ($channel->exists) {
+            $threads->where('channel_id', $channel->id);
+        }
+
+        $threads = $threads->get();
+        return $threads;
     }
 }
