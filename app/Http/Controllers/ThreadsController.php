@@ -116,7 +116,9 @@ class ThreadsController extends Controller
     }
 
     /**
-     * @param Channel $channel
+     * Fetch all relevant threads.
+     *
+     * @param Channel       $channel
      * @param ThreadFilters $filters
      * @return mixed
      */

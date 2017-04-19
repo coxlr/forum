@@ -20,6 +20,12 @@ abstract class Filters
         $this->request = $request;
     }
 
+    /**
+     * Apply the filters.
+     *
+     * @param  Builder $builder
+     * @return Builder
+     */
     public function apply($builder)
     {
         $this->builder = $builder;
@@ -33,6 +39,11 @@ abstract class Filters
         return $this->builder;
     }
 
+    /**
+     * Fetch all relevant filters from the request.
+     *
+     * @return array
+     */
     public function getFilters()
     {
         return $this->request->intersect($this->filters);
