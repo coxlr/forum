@@ -19,19 +19,25 @@
             'csrfToken' => csrf_token(),
         ]) !!};
     </script>
+
     <style>
         body { padding-bottom: 100px; }
         .level { display: flex; align-items: center; }
         .flex { flex: 1; }
+        .mr-1 {margin-right: 1em;}
+        [v-cloak] { display: none; }
     </style>
 </head>
 <body>
-    <div id="app">
-        @include('layouts.nav')
-        @yield('content')
-    </div>
+<div id="app">
+    @include ('layouts.nav')
 
-    <!-- Scripts -->
-    <script src="{{ asset('js/app.js') }}"></script>
+    @yield('content')
+
+    <flash message="{{ session('flash') }}"></flash>
+</div>
+
+<!-- Scripts -->
+<script src="{{ asset('js/app.js') }}"></script>
 </body>
 </html>
