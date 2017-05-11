@@ -1,5 +1,4 @@
 <?php
-
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
@@ -13,8 +12,18 @@ class Reply extends Model
      * @var array
      */
     protected $guarded = [];
-
-    protected $with = ['owner','favorites'];
+    /**
+     * The relations to eager load on every query.
+     *
+     * @var array
+     */
+    protected $with = ['owner', 'favorites'];
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array
+     */
+    protected $appends = ['favoritesCount', 'isFavorited'];
     /**
      * A reply has an owner.
      *
@@ -24,7 +33,6 @@ class Reply extends Model
     {
         return $this->belongsTo(User::class, 'user_id');
     }
-
     /**
      * A reply belongs to a thread.
      *
@@ -34,7 +42,6 @@ class Reply extends Model
     {
         return $this->belongsTo(Thread::class);
     }
-
     /**
      * Determine the path to the reply.
      *
