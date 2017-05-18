@@ -3,7 +3,6 @@
 namespace App\Filters;
 
 use App\User;
-use Illuminate\Http\Request;
 
 class ThreadFilters extends Filters
 {
@@ -12,13 +11,13 @@ class ThreadFilters extends Filters
      *
      * @var array
      */
-    protected $filters = ['by', 'popular'];
+    protected $filters = ['by', 'popular', 'unanswered'];
 
     /**
-     * Filter the query by a given username
+     * Filter the query by a given username.
      *
-     * @param string $username
-     * @return mixed
+     * @param  string $username
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function by($username)
     {
@@ -28,14 +27,24 @@ class ThreadFilters extends Filters
     }
 
     /**
-     * Filter the query by a number of replies (most popular)
+     * Filter the query according to most popular threads.
      *
-     * @return mixed
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     protected function popular()
     {
         $this->builder->getQuery()->orders = [];
 
         return $this->builder->orderBy('replies_count', 'desc');
+    }
+
+    /**
+     * Filter the query according to those that are unanswered.
+     *
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    protected function unanswered()
+    {
+        return $this->builder->where('replies_count', 0);
     }
 }

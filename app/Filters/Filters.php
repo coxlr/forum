@@ -2,16 +2,31 @@
 
 namespace App\Filters;
 
-
 use Illuminate\Http\Request;
 
 abstract class Filters
 {
-    protected $request, $builder;
+    /**
+     * @var Request
+     */
+    protected $request;
+
+    /**
+     * The Eloquent builder.
+     *
+     * @var \Illuminate\Database\Eloquent\Builder
+     */
+    protected $builder;
+
+    /**
+     * Registered filters to operate upon.
+     *
+     * @var array
+     */
     protected $filters = [];
 
     /**
-     * ThreadFilters constructor.
+     * Create a new ThreadFilters instance.
      *
      * @param Request $request
      */
@@ -23,15 +38,15 @@ abstract class Filters
     /**
      * Apply the filters.
      *
-     * @param  Builder $builder
-     * @return Builder
+     * @param  \Illuminate\Database\Eloquent\Builder $builder
+     * @return \Illuminate\Database\Eloquent\Builder
      */
     public function apply($builder)
     {
         $this->builder = $builder;
 
-        foreach($this->getFilters() as $filter => $value){
-            if(method_exists($this, $filter)){
+        foreach ($this->getFilters() as $filter => $value) {
+            if (method_exists($this, $filter)) {
                 $this->$filter($value);
             }
         }
