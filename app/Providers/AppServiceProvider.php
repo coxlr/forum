@@ -3,8 +3,6 @@
 namespace App\Providers;
 
 use App\Channel;
-use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,12 +17,15 @@ class AppServiceProvider extends ServiceProvider
         //Deal with the issue of migration string length on older version of mysql - LC 040617
         Schema::defaultStringLength(191);
 
-        \View::composer('*', function($view) {
-            $channels = Cache::rememberForever('channels', function(){
+        \View::composer('*', function ($view) {
+            $channels = \Cache::rememberForever('channels', function () {
                 return Channel::all();
             });
+
             $view->with('channels', $channels);
         });
+
+        \Validator::extend('spamfree', 'App\Rules\SpamFree@passes');
     }
 
     /**
@@ -34,7 +35,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        if($this->app->isLocal()){
+        if ($this->app->isLocal()) {
             $this->app->register(\Barryvdh\Debugbar\ServiceProvider::class);
         }
     }
