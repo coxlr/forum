@@ -2,16 +2,12 @@
 
 namespace Tests\Feature;
 
-
 use App\Activity;
-use Illuminate\Foundation\Testing\WithoutMiddleware;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Tests\TestCase;
 
 class CreateThreadsTest extends TestCase
 {
-
     use DatabaseMigrations;
 
     /** @test */
@@ -19,7 +15,7 @@ class CreateThreadsTest extends TestCase
     {
         $this->withExceptionHandling();
 
-        $this->get('threads/create')
+        $this->get('/threads/create')
             ->assertRedirect('/login');
 
         $this->post('/threads')
@@ -27,7 +23,19 @@ class CreateThreadsTest extends TestCase
     }
 
     /** @test */
-    function an_auhenticated_user_can_create_new_forum_thread()
+    function authenticated_users_must_first_confirm_their_email_address_before_creating_threads()
+    {
+        $this->withExceptionHandling()->signInUnconfirmed();
+
+        $thread = make('App\Thread');
+
+        $this->post('/threads', $thread->toArray())
+            ->assertRedirect('/threads')
+            ->assertSessionHas('flash', 'You must first confirm your email address.');
+    }
+
+    /** @test */
+    function an_authenticated_user_can_create_new_forum_threads()
     {
         $this->signIn();
 
@@ -70,15 +78,13 @@ class CreateThreadsTest extends TestCase
     function unauthorized_users_may_not_delete_threads()
     {
         $this->withExceptionHandling();
+
         $thread = create('App\Thread');
 
-        $response = $this->delete($thread->path())
-            ->assertRedirect('/login');
+        $this->delete($thread->path())->assertRedirect('/login');
 
         $this->signIn();
-
-        $response = $this->delete($thread->path())
-            ->assertStatus(403);
+        $this->delete($thread->path())->assertStatus(403);
     }
 
     /** @test */
@@ -99,8 +105,7 @@ class CreateThreadsTest extends TestCase
         $this->assertEquals(0, Activity::count());
     }
 
-    /** @test */
-    function publishThread($overrides = [])
+    protected function publishThread($overrides = [])
     {
         $this->withExceptionHandling()->signIn();
 

@@ -19,7 +19,16 @@ abstract class TestCase extends BaseTestCase
 
     protected function signIn($user = null)
     {
-        $user = $user ?: create('App\User');
+        $user = $user ?: create('App\User', ['confirmed' => true]);
+
+        $this->actingAs($user);
+
+        return $this;
+    }
+
+    protected function signInUnconfirmed()
+    {
+        $user = create('App\User', ['confirmed' => false]);
 
         $this->actingAs($user);
 
