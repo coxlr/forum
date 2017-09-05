@@ -16,7 +16,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'avatar_path'
+        'name',
+        'email',
+        'password',
+        'avatar_path'
     ];
 
     /**
@@ -25,9 +28,10 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'email',
+        'password',
+        'remember_token',
+        'email',
     ];
-
 
     /**
      * The attributes that should be cast to native types.
@@ -84,6 +88,8 @@ class User extends Authenticatable
     public function confirm()
     {
         $this->confirmed = true;
+        $this->confirmation_token = null;
+
         $this->save();
     }
 
@@ -108,7 +114,7 @@ class User extends Authenticatable
      */
     public function getAvatarPathAttribute($avatar)
     {
-        return asset($avatar ? '/storage/'.$avatar : 'images/avatars/default.png');
+        return asset($avatar ?: 'images/avatars/default.png');
     }
 
     /**
