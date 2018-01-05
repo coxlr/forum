@@ -42,7 +42,6 @@ class Thread extends Model
         'locked' => 'boolean'
     ];
 
-
     /**
      * Boot the model.
      */
@@ -199,6 +198,17 @@ class Thread extends Model
     }
 
     /**
+     * Access the body attribute.
+     *
+     * @param  string $body
+     * @return string
+     */
+    public function getBodyAttribute($body)
+    {
+        return \Purify::clean($body);
+    }
+
+    /**
      * Set the proper slug attribute.
      *
      * @param string $value
@@ -220,5 +230,15 @@ class Thread extends Model
     public function markBestReply(Reply $reply)
     {
         $this->update(['best_reply_id' => $reply->id]);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return $this->toArray() + ['path' => $this->path()];
     }
 }
